@@ -1,0 +1,35 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js by Avi'
+
+- script: |
+    npm install
+    npm run build
+  displayName: 'npm install and build by Avinash'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourceDirectory)'
+    Contents: '**/*.tgz'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Copy *.tgz files'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourceDirectory)'
+    Contents: 'package.json'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Copy package.json files'
+  
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)/npm'
+    artifact: 'npm'
+    publishLocation: 'pipeline'
